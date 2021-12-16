@@ -94,7 +94,7 @@ payload.country]]></ee:set-variable>
 						<http:query-params><![CDATA[#[output application/java
 ---
 {
-	"appid" : Mule::p('api.appid'),
+	"appid" : Mule::p('secure::api.appid'),
 	"lat" : payload.latitude,
 	"lon" : payload.longitude,
 	"exclude" : "hourly,alerts,minutely,current",
@@ -187,7 +187,7 @@ pluck $]]></ee:set-variable>
 						<http:uri-params><![CDATA[#[output application/java
 ---
 {
-	api : Mule::p('api.api'),
+	api : Mule::p('secure::api.api'),
 	base: payload.currencyCode
 }]]]></http:uri-params>
 					</http:request>
@@ -234,9 +234,8 @@ excResult[2]]]></ee:set-variable>
 					</ee:variables>
 				</ee:transform>
 			</route>
-			<route>
-				<try doc:name="Try" doc:id="7dc77506-cba0-47ae-959b-3560049a2967">
-					<parallel-foreach doc:name="Parallel For Each" doc:id="98960d58-0b1f-4445-ba6d-f7c3e276648c" collection="#[vars.countryApi]">
+			<route >
+				<parallel-foreach doc:name="Parallel For Each" doc:id="98960d58-0b1f-4445-ba6d-f7c3e276648c" collection="#[vars.countryApi]">
 						<http:request method="GET" doc:name="call_region_api" doc:id="9843b518-480c-4ba8-8b77-99b07adf4f62" config-ref="region_Config" path="/countries">
 							<http:query-params><![CDATA[#[output application/java
 ---
@@ -246,50 +245,37 @@ excResult[2]]]></ee:set-variable>
 						</http:request>
 						<logger level="INFO" doc:name="Logger" doc:id="40775369-73b8-4bde-b93f-3adf57b95189" message="#[payload]" />
 					</parallel-foreach>
-					<ee:transform doc:name="Transform Message" doc:id="d050e7a8-9813-4648-87de-7ac4df365dac">
+				<ee:transform doc:name="Transform Message" doc:id="d050e7a8-9813-4648-87de-7ac4df365dac">
 						<ee:message>
 							<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map $.payload]]></ee:set-payload>
 						</ee:message>
-						<ee:variables >
-							<ee:set-variable variableName="regionRes" ><![CDATA[%dw 2.0
+						<ee:variables>
+							<ee:set-variable variableName="regionRes"><![CDATA[%dw 2.0
 output application/json
 
 var regionRes = payload map $.payload.data[0]
 
 ---
 region: regionRes.region[0]]]></ee:set-variable>
-							<ee:set-variable variableName="regionRes1" ><![CDATA[%dw 2.0
+							<ee:set-variable variableName="regionRes1"><![CDATA[%dw 2.0
 output application/json
 
 var regionRes = payload map $.payload.data[0]
 
 ---
 region: regionRes.region[1]]]></ee:set-variable>
-							<ee:set-variable variableName="regionRes2" ><![CDATA[%dw 2.0
+							<ee:set-variable variableName="regionRes2"><![CDATA[%dw 2.0
 output application/json
 
 var regionRes = payload map $.payload.data[0]
 
 ---
-region: regionRes.region[3]]]></ee:set-variable>
+region: regionRes.region[2]]]></ee:set-variable>
 						</ee:variables>
 					</ee:transform>
-					<error-handler>
-						<on-error-continue enableNotifications="true" logException="true" doc:name="Copy_of_On Error Continue" doc:id="dee56238-4d30-4b88-b787-4e4e90461bb3">
-							<ee:transform doc:name="Transform Message" doc:id="514780c6-8fc3-45db-a97d-65267175c9d6">
-								<ee:message>
-									<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-null]]></ee:set-payload>
-								</ee:message>
-							</ee:transform>
-						</on-error-continue>
-					</error-handler>
-				</try>
 			</route>
 		</scatter-gather>
 		<ee:transform doc:name="Transform Message" doc:id="b451b6d2-76b4-4319-b29d-3e9a34adb114">
