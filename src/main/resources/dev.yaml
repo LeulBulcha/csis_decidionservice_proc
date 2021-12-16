@@ -1,0 +1,9 @@
+http:
+    host: "localhost"
+    port: "8082"
+    path: "api/*"
+ 
+ 
+api:
+    appid: "06676ad339beeb5e0e36b7d5ce5412ca"
+    api: "17acc640e6b57f37b32843f9"
